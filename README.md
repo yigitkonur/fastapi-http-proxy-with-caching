@@ -1,255 +1,378 @@
-# FastAPI HTTP Proxy with Caching
+<h1 align="center">🚀 FastAPI Transparent Proxy 🚀</h1>
+<h3 align="center">Stop paying for duplicate API calls. Start caching like a pro.</h3>
 
-A FastAPI-based HTTP proxy that forwards requests to specified URLs, while caching responses using Redis to optimize repeated requests. This implementation includes detailed logging to track the flow of requests and caching mechanisms.
+<p align="center">
+  <strong>
+    <em>The ultimate transparent HTTP proxy for no-code platforms. It sits between your automations and expensive APIs, caching responses based on MD5 hashes so identical requests return instantly.</em>
+  </strong>
+</p>
 
-## Features
+<p align="center">
+  <!-- Package Info -->
+  <a href="#"><img alt="python" src="https://img.shields.io/badge/python-3.10+-4D87E6.svg?style=flat-square"></a>
+  <a href="#"><img alt="fastapi" src="https://img.shields.io/badge/FastAPI-0.109+-009688.svg?style=flat-square"></a>
+  &nbsp;&nbsp;•&nbsp;&nbsp;
+  <!-- Features -->
+  <a href="#"><img alt="license" src="https://img.shields.io/badge/License-MIT-F9A825.svg?style=flat-square"></a>
+  <a href="#"><img alt="platform" src="https://img.shields.io/badge/platform-macOS_|_Linux_|_Windows_|_Docker-2ED573.svg?style=flat-square"></a>
+</p>
 
-- Forward HTTP POST requests to specified URLs.
-- Cache responses to avoid redundant network calls.
-- Detailed logging for easy debugging and monitoring.
-- Configurable with Redis for caching.
-- Set up as a systemd service for automatic startup and resource monitoring.
+<p align="center">
+  <img alt="zero config" src="https://img.shields.io/badge/⚙️_zero_config-works_without_redis-2ED573.svg?style=for-the-badge">
+  <img alt="n8n ready" src="https://img.shields.io/badge/🔧_no--code_ready-n8n_|_Make_|_Zapier-2ED573.svg?style=for-the-badge">
+</p>
 
-## Getting Started
+<div align="center">
 
-### Prerequisites
+### 🧭 Quick Navigation
 
-- Python 3.7+
-- FastAPI
-- Redis (Upstash or local Redis instance)
-- httpx
-- uvicorn
+[**⚡ Get Started**](#-get-started-in-60-seconds) •
+[**✨ Key Features**](#-feature-breakdown-the-secret-sauce) •
+[**🎮 Usage & Examples**](#-usage-fire-and-forget) •
+[**⚙️ Configuration**](#%EF%B8%8F-configuration) •
+[**🆚 Why This Slaps**](#-why-this-slaps-other-methods)
 
-### Installation
+</div>
 
-1. Clone the repository:
+---
 
-    ```sh
-    git clone https://github.com/yourusername/fastapi-http-proxy-with-caching.git
-    cd fastapi-http-proxy-with-caching
-    ```
+**FastAPI Transparent Proxy** is the caching layer your no-code automations wish they had. Stop making the same API calls over and over. This proxy sits between your n8n/Make/Zapier workflows and expensive third-party APIs, returning cached responses for identical requests—saving bandwidth, reducing latency, and cutting your API bills.
 
-2. Create a virtual environment and activate it:
+<div align="center">
+<table>
+<tr>
+<td align="center">
+<h3>🧠</h3>
+<b>MD5 Deduplication</b><br/>
+<sub>Same request = same cache key</sub>
+</td>
+<td align="center">
+<h3>⚡</h3>
+<b>Sub-ms Response</b><br/>
+<sub>Cache hits are instant</sub>
+</td>
+<td align="center">
+<h3>🔌</h3>
+<b>Zero Config</b><br/>
+<sub>Works without Redis too</sub>
+</td>
+</tr>
+</table>
+</div>
 
-    ```sh
-    python -m venv venv
-    source venv/bin/activate  # On Windows use `venv\Scripts\activate`
-    ```
+How it slaps:
+- **You:** Point your n8n HTTP Request node to this proxy
+- **Proxy:** Hashes the request, checks cache, returns or forwards
+- **Result:** First call hits the API, next 1000 identical calls return instantly
+- **Your wallet:** 📈
 
-3. Install the dependencies:
+---
 
-    ```sh
-    pip install -r requirements.txt
-    ```
+## 💥 Why This Slaps Other Methods
 
-### Using Upstash for Redis Caching
+Manually deduplicating API calls in no-code is a nightmare. This proxy makes other approaches look ancient.
 
-#### Introduction to Upstash
+<table align="center">
+<tr>
+<td align="center"><b>❌ The Old Way (Pain)</b></td>
+<td align="center"><b>✅ The Proxy Way (Glory)</b></td>
+</tr>
+<tr>
+<td>
+<ol>
+  <li>Build complex "check if already fetched" logic</li>
+  <li>Store results in Airtable/Notion/Sheets</li>
+  <li>Add branches: "if cached then skip"</li>
+  <li>Debug why your workflow is 47 nodes</li>
+  <li>Pay for 1000 duplicate API calls anyway</li>
+</ol>
+</td>
+<td>
+<ol>
+  <li>Deploy this proxy (one command)</li>
+  <li>Change your API URL to proxy URL</li>
+  <li>Done. Caching is automatic.</li>
+  <li>Watch your API costs drop 90%</li>
+  <li>Go grab a coffee. ☕</li>
+</ol>
+</td>
+</tr>
+</table>
 
-[Upstash](https://upstash.com/) is a serverless database solution that offers Redis-compatible caching with a pay-as-you-go pricing model. It is an excellent choice for applications that require scalable and cost-effective caching.
+We're not just forwarding requests. We're building **deterministic cache keys** from MD5 hashes of `method + URL + headers + body`, so identical business requests always hit the same cache entry—even across different workflow runs.
 
-#### Pricing Details
+---
 
-Upstash's pricing model is straightforward and cost-effective, making it a great choice for caching needs:
+## 🚀 Get Started in 60 Seconds
 
-- **Pay as You Go**: $0.2 per 100K commands
-- **Pro 2K**: $280 per month
-- **Pro 10K**: $680 per month
+<div align="center">
 
-For example, caching:
-- **1 million objects**: This would typically involve around 1 million commands. At $0.2 per 100K commands, the cost would be $2.
-- **10 million requests**: Assuming each request involves a caching command, this would cost $20 at the pay-as-you-go rate.
+| Platform | One-liner |
+|:--------:|:----------|
+| 🐳 **Docker** | `docker run -p 8000:8000 ghcr.io/yigitkonur/fastapi-proxy` |
+| 🐍 **Python** | `pip install -r requirements.txt && uvicorn main:app` |
+| ☁️ **Railway/Render** | Deploy from GitHub, set `REDIS_URL` env var |
 
-#### Configuration
+</div>
 
-To use Upstash as your Redis provider, follow these steps:
+### Quick Install (Python)
 
-1. **Sign Up for Upstash**:
-   - Go to [Upstash's website](https://upstash.com/) and sign up for an account.
-   - Create a new Redis database and note the provided endpoint and credentials.
+```bash
+# Clone and enter
+git clone https://github.com/yigitkonur/fastapi-http-proxy-with-caching.git
+cd fastapi-http-proxy-with-caching
 
-2. **Configure Redis URL in the Application**:
-   - Open `main.py` and set the `redis_url` variable with your Upstash Redis credentials:
+# Setup virtual environment
+python3 -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+pip install -r requirements.txt
 
-     ```python
-     redis_url = "redis://:your_upstash_password@your_upstash_endpoint:your_upstash_port"
-     ```
-
-3. **Run the Application**:
-   - Start the FastAPI server using uvicorn:
-
-     ```sh
-     uvicorn main:app --host 0.0.0.0 --port 8000
-     ```
-
-### Running the Application
-
-Start the FastAPI server using uvicorn:
-
-```sh
+# Run (works immediately, even without Redis!)
 uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 
-### Usage
+> **✨ Zero Config:** The proxy starts in **degraded mode** without Redis—requests still work, just without caching. Add Redis when you're ready for the full experience.
 
-Send a POST request to the `/webhook-test/post-response` endpoint with a `url` query parameter specifying the target URL.
+---
 
-Example:
+## 🎮 Usage: Fire and Forget
 
-```sh
-curl -X POST "http://127.0.0.1:8000/webhook-test/post-response?url=https://example.com/api" -H "Content-Type: application/json" -d '{"key": "value"}'
+### Basic Proxy Request
+
+```bash
+# Instead of calling the API directly...
+curl -X POST "https://expensive-api.com/data" -d '{"query": "foo"}'
+
+# Route through the proxy:
+curl -X POST "http://localhost:8000/proxy?url=https://expensive-api.com/data" \
+  -H "Content-Type: application/json" \
+  -d '{"query": "foo"}'
 ```
 
-### Logging
+### Response Format
 
-The application includes detailed logging to help trace the flow of requests and responses. Logs are printed to the console.
+```json
+{
+  "success": true,
+  "cached": true,
+  "cache_key": "a1b2c3d4e5f67890",
+  "status_code": 200,
+  "data": { "your": "api response" }
+}
+```
 
-### Setting Up as a Systemd Service
+The `cached: true` means you just saved an API call. 🎉
 
-To ensure that your FastAPI application runs automatically on system restart and operates as a background service, you can set it up as a systemd service on your server.
+### In n8n
 
-#### Finding the Required Paths and Information
+1. Add an **HTTP Request** node
+2. Set URL to: `http://your-proxy:8000/proxy?url=https://actual-api.com/endpoint`
+3. Configure method, headers, body as normal
+4. Every identical request now returns from cache
 
-1. **Finding the Uvicorn Path:**
+### Advanced Options
 
-    Ensure that the virtual environment is activated:
+```bash
+# Force fresh request (bypass cache)
+curl "http://localhost:8000/proxy?url=https://api.com/data&bypass_cache=true"
 
-    ```sh
-    source /path/to/your/venv/bin/activate
-    ```
+# Custom cache TTL (2 hours instead of default 1 hour)
+curl "http://localhost:8000/proxy?url=https://api.com/data&cache_ttl=7200"
+```
 
-    Then find the path to the `uvicorn` executable:
+### Health & Admin Endpoints
 
-    ```sh
-    which uvicorn
-    ```
+```bash
+# Health check (great for load balancers)
+curl http://localhost:8000/health
+# → {"status": "healthy", "redis_connected": true, "version": "2.0.0"}
 
-    This will output something like:
+# Cache statistics
+curl http://localhost:8000/cache/stats
+# → {"total_keys": 1547, "memory_usage": "2.3M", "prefix": "proxy:cache:"}
 
-    ```sh
-    /path/to/your/venv/bin/uvicorn
-    ```
+# Nuclear option: clear all cache
+curl -X DELETE http://localhost:8000/cache
+# → {"deleted": 1547, "message": "Cleared 1547 cached entries"}
+```
 
-    Use this path in the `ExecStart` directive of your systemd service file.
+---
 
-2. **Finding Your Username:**
+## ✨ Feature Breakdown: The Secret Sauce
 
-    Your username can be found by running:
+<div align="center">
 
-    ```sh
-    whoami
-    ```
+| Feature | What It Does | Why You Care |
+| :---: | :--- | :--- |
+| **🧠 MD5 Hashing**<br/>Deterministic keys | Hashes `method + URL + headers + body` into cache key | Identical requests always return same cached response |
+| **⚡ Graceful Degradation**<br/>No Redis? No problem | Starts without Redis, just skips caching | Deploy anywhere, add Redis later |
+| **🔄 All HTTP Methods**<br/>Not just POST | GET, POST, PUT, DELETE, PATCH all supported | Works with any API pattern |
+| **⏰ Flexible TTL**<br/>Per-request control | Default 1 hour, override per request | Cache static data longer, dynamic shorter |
+| **🎯 Cache Bypass**<br/>When you need fresh | `bypass_cache=true` skips cache | Force refresh when needed |
+| **📊 Health Checks**<br/>Production ready | `/health` endpoint with Redis status | Perfect for k8s liveness probes |
+| **🔧 Legacy Support**<br/>Drop-in replacement | `/webhook-test/post-response` still works | Migrate existing workflows gradually |
 
-    This will output your current user's name, which should be used in the `User` directive.
+</div>
 
-3. **Finding the Working Directory:**
+---
 
-    The working directory is where your FastAPI application (e.g., `main.py`) is located. Use the `pwd` command in your project directory to find the full path:
+## ⚙️ Configuration
 
-    ```sh
-    pwd
-    ```
+All settings via environment variables. Copy `.env.example` to `.env`:
 
-    This will output something like:
+```bash
+cp .env.example .env
+```
 
-    ```sh
-    /path/to/your/fastapi-app
-    ```
+<div align="center">
 
-    Use this path in the `WorkingDirectory` directive.
+| Variable | Default | Description |
+|:---------|:--------|:------------|
+| `REDIS_URL` | `redis://localhost:6379/0` | Redis connection (or Upstash URL) |
+| `CACHE_TTL_SECONDS` | `3600` | Default cache lifetime (1 hour) |
+| `CACHE_PREFIX` | `proxy:cache:` | Redis key prefix |
+| `PROXY_TIMEOUT_SECONDS` | `30` | Timeout for proxied requests |
+| `DEBUG` | `false` | Enable verbose logging |
 
-4. **Setting Up the Environment Path:**
+</div>
 
-    The environment path should point to the `bin` directory of your virtual environment. It is typically:
+### Using Upstash (Serverless Redis)
 
-    ```sh
-    /path/to/your/venv/bin
-    ```
+[Upstash](https://upstash.com/) is perfect for this—pay only for what you use:
 
-#### Creating and Configuring the Systemd Service
+1. Create a database at [console.upstash.com](https://console.upstash.com)
+2. Copy your Redis URL
+3. Set in `.env`:
+   ```
+   REDIS_URL=redis://default:YOUR_PASSWORD@YOUR_ENDPOINT.upstash.io:6379
+   ```
 
-1. **Create the Systemd Service File:**
+**Cost**: ~$0.20 per 100K cached requests. If you're making 1M duplicate calls/month, that's **$2 vs whatever you're paying now**.
 
-    ```sh
-    sudo nano /etc/systemd/system/fastapi.service
-    ```
+---
 
-2. **Add the Following Content to the Service File:**
+## 🏗️ Project Structure
 
-    Replace the placeholders with the actual paths and user information found in the steps above.
+```
+├── main.py                 # Entry point (thin wrapper)
+├── app/
+│   ├── __init__.py        # Package metadata
+│   ├── main.py            # FastAPI app factory + lifespan
+│   ├── config.py          # Pydantic settings from env
+│   ├── models.py          # Request/response schemas
+│   ├── dependencies.py    # Service injection
+│   ├── services/
+│   │   ├── cache.py       # Redis + MD5 hashing logic
+│   │   └── proxy.py       # HTTP forwarding logic
+│   └── routes/
+│       ├── proxy.py       # /proxy endpoint
+│       └── health.py      # /health, /cache/stats
+├── requirements.txt       # Pinned dependencies
+├── Dockerfile            # Multi-stage production build
+├── .env.example          # Configuration template
+└── README.md
+```
 
-    ```ini
-    [Unit]
-    Description=FastAPI Service
-    After=network.target
+---
 
-    [Service]
-    User=your_username
-    Group=www-data
-    WorkingDirectory=/path/to/your/fastapi-app
-    Environment="PATH=/path/to/your/venv/bin"
-    ExecStart=/path/to/your/venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000
+## 🐳 Deployment
 
-    [Install]
-    WantedBy=multi-user.target
-    ```
+### Docker (Recommended)
 
-3. **Reload Systemd Daemon:**
+```bash
+# Build
+docker build -t fastapi-proxy .
 
-    ```sh
-    sudo systemctl daemon-reload
-    ```
+# Run (without Redis - degraded mode)
+docker run -p 8000:8000 fastapi-proxy
 
-4. **Enable the FastAPI Service to Start on Boot:**
+# Run with Redis
+docker run -p 8000:8000 -e REDIS_URL=redis://host:6379 fastapi-proxy
+```
 
-    ```sh
-    sudo systemctl enable fastapi.service
-    ```
+### Docker Compose (with Redis)
 
-5. **Start the FastAPI Service:**
+```yaml
+version: '3.8'
+services:
+  proxy:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - redis
+  redis:
+    image: redis:alpine
+    volumes:
+      - redis_data:/data
+volumes:
+  redis_data:
+```
 
-    ```sh
-    sudo systemctl start fastapi.service
-    ```
+### Systemd (Linux Server)
 
-6. **Check the Status of the Service:**
+```ini
+[Unit]
+Description=FastAPI Transparent Proxy
+After=network.target
 
-    ```sh
-    sudo systemctl status fastapi.service
-    ```
+[Service]
+User=www-data
+WorkingDirectory=/opt/fastapi-proxy
+Environment="PATH=/opt/fastapi-proxy/venv/bin"
+ExecStart=/opt/fastapi-proxy/venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000
+Restart=always
 
-### Monitoring System Resources
+[Install]
+WantedBy=multi-user.target
+```
 
-You can monitor the system resource usage of the FastAPI service using standard Linux tools.
+---
 
-1. **Check CPU and Memory Usage:**
+## 🔥 Common Issues & Quick Fixes
 
-    ```sh
-    top
-    ```
+<details>
+<summary><b>Expand for troubleshooting tips</b></summary>
 
-    Find your service by its name or PID and monitor its resource usage.
+| Problem | Solution |
+| :--- | :--- |
+| **"Redis unavailable" warning** | Expected without Redis. The proxy still works, just without caching. Add `REDIS_URL` when ready. |
+| **Cache not working** | Check `redis_connected: true` in `/health`. Verify your `REDIS_URL` is correct. |
+| **Timeout errors** | Increase `PROXY_TIMEOUT_SECONDS`. Some APIs are slow. |
+| **Cache key collisions** | Shouldn't happen—MD5 is deterministic. If you're seeing wrong cached responses, check if you're modifying headers unintentionally. |
+| **High memory usage** | Set `CACHE_TTL_SECONDS` lower, or use `/cache` DELETE endpoint to clear. |
 
-2. **Detailed Resource Usage:**
+</details>
 
-    ```sh
-    htop
-    ```
+---
 
-    Use `htop` for a more user-friendly and detailed view of system resources.
+## 🛠️ Development
 
-3. **View Service Logs:**
+```bash
+# Clone
+git clone https://github.com/yigitkonur/fastapi-http-proxy-with-caching.git
+cd fastapi-http-proxy-with-caching
 
-    ```sh
-    sudo journalctl -u fastapi.service -b
-    ```
+# Setup
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
 
-    This command will display detailed logs for the FastAPI service, which can help diagnose any issues.
+# Run with hot reload
+uvicorn main:app --reload
 
-### Additional Resources
+# Run tests (coming soon)
+pytest
+```
 
-- [Upstash Documentation](https://docs.upstash.com/)
-- [FastAPI Documentation](https://fastapi.tiangolo.com/)
-- [Redis Documentation](https://redis.io/documentation)
+---
 
-By following these steps, you can ensure that your FastAPI application runs correctly as a systemd service and can monitor its resource usage effectively. If there are any further issues, please provide detailed logs for further assistance.
+<div align="center">
+
+**Built with 🔥 because paying for duplicate API calls is a soul-crushing waste of money.**
+
+MIT © [Yiğit Konur](https://github.com/yigitkonur)
+
+</div>
