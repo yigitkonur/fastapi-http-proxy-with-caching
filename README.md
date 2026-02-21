@@ -1,378 +1,185 @@
-<h1 align="center">🚀 FastAPI Transparent Proxy 🚀</h1>
-<h3 align="center">Stop paying for duplicate API calls. Start caching like a pro.</h3>
-
-<p align="center">
-  <strong>
-    <em>The ultimate transparent HTTP proxy for no-code platforms. It sits between your automations and expensive APIs, caching responses based on MD5 hashes so identical requests return instantly.</em>
-  </strong>
-</p>
-
-<p align="center">
-  <!-- Package Info -->
-  <a href="#"><img alt="python" src="https://img.shields.io/badge/python-3.10+-4D87E6.svg?style=flat-square"></a>
-  <a href="#"><img alt="fastapi" src="https://img.shields.io/badge/FastAPI-0.109+-009688.svg?style=flat-square"></a>
-  &nbsp;&nbsp;•&nbsp;&nbsp;
-  <!-- Features -->
-  <a href="#"><img alt="license" src="https://img.shields.io/badge/License-MIT-F9A825.svg?style=flat-square"></a>
-  <a href="#"><img alt="platform" src="https://img.shields.io/badge/platform-macOS_|_Linux_|_Windows_|_Docker-2ED573.svg?style=flat-square"></a>
-</p>
-
-<p align="center">
-  <img alt="zero config" src="https://img.shields.io/badge/⚙️_zero_config-works_without_redis-2ED573.svg?style=for-the-badge">
-  <img alt="n8n ready" src="https://img.shields.io/badge/🔧_no--code_ready-n8n_|_Make_|_Zapier-2ED573.svg?style=for-the-badge">
-</p>
-
-<div align="center">
-
-### 🧭 Quick Navigation
-
-[**⚡ Get Started**](#-get-started-in-60-seconds) •
-[**✨ Key Features**](#-feature-breakdown-the-secret-sauce) •
-[**🎮 Usage & Examples**](#-usage-fire-and-forget) •
-[**⚙️ Configuration**](#%EF%B8%8F-configuration) •
-[**🆚 Why This Slaps**](#-why-this-slaps-other-methods)
-
-</div>
-
----
-
-**FastAPI Transparent Proxy** is the caching layer your no-code automations wish they had. Stop making the same API calls over and over. This proxy sits between your n8n/Make/Zapier workflows and expensive third-party APIs, returning cached responses for identical requests—saving bandwidth, reducing latency, and cutting your API bills.
-
-<div align="center">
-<table>
-<tr>
-<td align="center">
-<h3>🧠</h3>
-<b>MD5 Deduplication</b><br/>
-<sub>Same request = same cache key</sub>
-</td>
-<td align="center">
-<h3>⚡</h3>
-<b>Sub-ms Response</b><br/>
-<sub>Cache hits are instant</sub>
-</td>
-<td align="center">
-<h3>🔌</h3>
-<b>Zero Config</b><br/>
-<sub>Works without Redis too</sub>
-</td>
-</tr>
-</table>
-</div>
-
-How it slaps:
-- **You:** Point your n8n HTTP Request node to this proxy
-- **Proxy:** Hashes the request, checks cache, returns or forwards
-- **Result:** First call hits the API, next 1000 identical calls return instantly
-- **Your wallet:** 📈
-
----
-
-## 💥 Why This Slaps Other Methods
-
-Manually deduplicating API calls in no-code is a nightmare. This proxy makes other approaches look ancient.
-
-<table align="center">
-<tr>
-<td align="center"><b>❌ The Old Way (Pain)</b></td>
-<td align="center"><b>✅ The Proxy Way (Glory)</b></td>
-</tr>
-<tr>
-<td>
-<ol>
-  <li>Build complex "check if already fetched" logic</li>
-  <li>Store results in Airtable/Notion/Sheets</li>
-  <li>Add branches: "if cached then skip"</li>
-  <li>Debug why your workflow is 47 nodes</li>
-  <li>Pay for 1000 duplicate API calls anyway</li>
-</ol>
-</td>
-<td>
-<ol>
-  <li>Deploy this proxy (one command)</li>
-  <li>Change your API URL to proxy URL</li>
-  <li>Done. Caching is automatic.</li>
-  <li>Watch your API costs drop 90%</li>
-  <li>Go grab a coffee. ☕</li>
-</ol>
-</td>
-</tr>
-</table>
-
-We're not just forwarding requests. We're building **deterministic cache keys** from MD5 hashes of `method + URL + headers + body`, so identical business requests always hit the same cache entry—even across different workflow runs.
-
----
-
-## 🚀 Get Started in 60 Seconds
-
-<div align="center">
-
-| Platform | One-liner |
-|:--------:|:----------|
-| 🐳 **Docker** | `docker run -p 8000:8000 ghcr.io/yigitkonur/fastapi-proxy` |
-| 🐍 **Python** | `pip install -r requirements.txt && uvicorn main:app` |
-| ☁️ **Railway/Render** | Deploy from GitHub, set `REDIS_URL` env var |
-
-</div>
-
-### Quick Install (Python)
+transparent HTTP forward proxy with Redis-backed response deduplication. point any HTTP client at it — n8n, Make, Zapier, curl, whatever — and identical upstream requests get served from cache. Redis is optional; without it, the proxy degrades to pass-through.
 
 ```bash
-# Clone and enter
-git clone https://github.com/yigitkonur/fastapi-http-proxy-with-caching.git
-cd fastapi-http-proxy-with-caching
-
-# Setup virtual environment
-python3 -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
+uvicorn main:app
+```
 
-# Run (works immediately, even without Redis!)
+[![python](https://img.shields.io/badge/python-3.11+-93450a.svg?style=flat-square)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.109+-93450a.svg?style=flat-square)](https://fastapi.tiangolo.com/)
+[![license](https://img.shields.io/badge/license-MIT-grey.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+
+---
+
+## how it works
+
+1. client sends a request to `/proxy?url=https://api.example.com/data`
+2. proxy computes an MD5 hash over method + URL + filtered headers + body
+3. cache hit → return stored response, never touch upstream
+4. cache miss → forward request, store response in Redis with TTL, return to client
+
+only responses with `status_code < 400` get cached. errors always pass through.
+
+## what it does
+
+- **MD5 deduplication** — normalized request signature strips volatile headers (`x-request-id`, `date`, `authorization`, `cf-ray`, etc.) so logically identical requests share a cache key
+- **Redis optional** — if Redis is unreachable on startup, logs a warning and runs as a pure proxy
+- **binary handling** — non-text responses get base64-wrapped in a JSON envelope automatically
+- **per-request TTL override** — `?cache_ttl=300` on any request
+- **cache bypass** — `?bypass_cache=true` to force upstream hit
+- **health + stats endpoints** — `/health`, `/cache/stats`, `DELETE /cache`
+- **connection pooling** — single long-lived `httpx.AsyncClient` with 100 max connections
+
+## install
+
+### local
+
+```bash
+git clone https://github.com/yigitkonur/transparent-cache-proxy.git
+cd transparent-cache-proxy
+
+pip install -r requirements.txt
+cp .env.example .env
+# edit .env — set REDIS_URL at minimum
+
 uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 
-> **✨ Zero Config:** The proxy starts in **degraded mode** without Redis—requests still work, just without caching. Add Redis when you're ready for the full experience.
-
----
-
-## 🎮 Usage: Fire and Forget
-
-### Basic Proxy Request
+### Docker
 
 ```bash
-# Instead of calling the API directly...
-curl -X POST "https://expensive-api.com/data" -d '{"query": "foo"}'
-
-# Route through the proxy:
-curl -X POST "http://localhost:8000/proxy?url=https://expensive-api.com/data" \
-  -H "Content-Type: application/json" \
-  -d '{"query": "foo"}'
+docker build -t transparent-cache-proxy .
+docker run -p 8000:8000 \
+  -e REDIS_URL=redis://your-redis:6379/0 \
+  transparent-cache-proxy
 ```
 
-### Response Format
+multi-stage build, runs as non-root `appuser`, built-in healthcheck.
+
+## usage
+
+### proxy a request
+
+```bash
+# GET
+curl "http://localhost:8000/proxy?url=https://api.example.com/data"
+
+# POST with body
+curl -X POST "http://localhost:8000/proxy?url=https://api.example.com/submit" \
+  -H "Content-Type: application/json" \
+  -d '{"key": "value"}'
+
+# bypass cache
+curl "http://localhost:8000/proxy?url=https://api.example.com/data&bypass_cache=true"
+
+# custom TTL (seconds)
+curl "http://localhost:8000/proxy?url=https://api.example.com/data&cache_ttl=300"
+```
+
+supports GET, POST, PUT, DELETE, PATCH.
+
+### response
 
 ```json
 {
   "success": true,
   "cached": true,
-  "cache_key": "a1b2c3d4e5f67890",
+  "cache_key": "proxy:cache:a1b2c3d4e5f6...",
   "status_code": 200,
-  "data": { "your": "api response" }
+  "data": { ... }
 }
 ```
 
-The `cached: true` means you just saved an API call. 🎉
-
-### In n8n
-
-1. Add an **HTTP Request** node
-2. Set URL to: `http://your-proxy:8000/proxy?url=https://actual-api.com/endpoint`
-3. Configure method, headers, body as normal
-4. Every identical request now returns from cache
-
-### Advanced Options
+### health check
 
 ```bash
-# Force fresh request (bypass cache)
-curl "http://localhost:8000/proxy?url=https://api.com/data&bypass_cache=true"
-
-# Custom cache TTL (2 hours instead of default 1 hour)
-curl "http://localhost:8000/proxy?url=https://api.com/data&cache_ttl=7200"
-```
-
-### Health & Admin Endpoints
-
-```bash
-# Health check (great for load balancers)
 curl http://localhost:8000/health
-# → {"status": "healthy", "redis_connected": true, "version": "2.0.0"}
+```
 
-# Cache statistics
+```json
+{
+  "status": "healthy",
+  "version": "2.0.0",
+  "redis_connected": true,
+  "cache_stats": { "total_keys": 42 }
+}
+```
+
+`status` is `"degraded"` when Redis is disconnected.
+
+### cache management
+
+```bash
+# stats
 curl http://localhost:8000/cache/stats
-# → {"total_keys": 1547, "memory_usage": "2.3M", "prefix": "proxy:cache:"}
 
-# Nuclear option: clear all cache
+# clear all cached entries
 curl -X DELETE http://localhost:8000/cache
-# → {"deleted": 1547, "message": "Cleared 1547 cached entries"}
 ```
 
----
+### legacy endpoint
 
-## ✨ Feature Breakdown: The Secret Sauce
+`POST /webhook-test/post-response?url=...` — same behavior as `/proxy`, kept for backward compatibility with existing n8n workflows.
 
-<div align="center">
+## configuration
 
-| Feature | What It Does | Why You Care |
-| :---: | :--- | :--- |
-| **🧠 MD5 Hashing**<br/>Deterministic keys | Hashes `method + URL + headers + body` into cache key | Identical requests always return same cached response |
-| **⚡ Graceful Degradation**<br/>No Redis? No problem | Starts without Redis, just skips caching | Deploy anywhere, add Redis later |
-| **🔄 All HTTP Methods**<br/>Not just POST | GET, POST, PUT, DELETE, PATCH all supported | Works with any API pattern |
-| **⏰ Flexible TTL**<br/>Per-request control | Default 1 hour, override per request | Cache static data longer, dynamic shorter |
-| **🎯 Cache Bypass**<br/>When you need fresh | `bypass_cache=true` skips cache | Force refresh when needed |
-| **📊 Health Checks**<br/>Production ready | `/health` endpoint with Redis status | Perfect for k8s liveness probes |
-| **🔧 Legacy Support**<br/>Drop-in replacement | `/webhook-test/post-response` still works | Migrate existing workflows gradually |
+| variable | default | description |
+|:---|:---|:---|
+| `REDIS_URL` | `redis://localhost:6379/0` | Redis connection string |
+| `CACHE_TTL_SECONDS` | `3600` | default TTL. `0` = no expiry |
+| `CACHE_PREFIX` | `proxy:cache:` | Redis key namespace |
+| `PROXY_TIMEOUT_SECONDS` | `30.0` | upstream request timeout |
+| `MAX_REQUEST_BODY_SIZE` | `10485760` | max inbound body (10 MB) |
+| `EXCLUDED_HEADERS` | `host,content-length,connection,accept-encoding,transfer-encoding` | headers stripped before forwarding |
+| `DEBUG` | `false` | enables auto-reload and debug logging |
+| `HOST` | `0.0.0.0` | bind address |
+| `PORT` | `8000` | bind port |
 
-</div>
+all configurable via `.env` file or environment variables.
 
----
-
-## ⚙️ Configuration
-
-All settings via environment variables. Copy `.env.example` to `.env`:
-
-```bash
-cp .env.example .env
-```
-
-<div align="center">
-
-| Variable | Default | Description |
-|:---------|:--------|:------------|
-| `REDIS_URL` | `redis://localhost:6379/0` | Redis connection (or Upstash URL) |
-| `CACHE_TTL_SECONDS` | `3600` | Default cache lifetime (1 hour) |
-| `CACHE_PREFIX` | `proxy:cache:` | Redis key prefix |
-| `PROXY_TIMEOUT_SECONDS` | `30` | Timeout for proxied requests |
-| `DEBUG` | `false` | Enable verbose logging |
-
-</div>
-
-### Using Upstash (Serverless Redis)
-
-[Upstash](https://upstash.com/) is perfect for this—pay only for what you use:
-
-1. Create a database at [console.upstash.com](https://console.upstash.com)
-2. Copy your Redis URL
-3. Set in `.env`:
-   ```
-   REDIS_URL=redis://default:YOUR_PASSWORD@YOUR_ENDPOINT.upstash.io:6379
-   ```
-
-**Cost**: ~$0.20 per 100K cached requests. If you're making 1M duplicate calls/month, that's **$2 vs whatever you're paying now**.
-
----
-
-## 🏗️ Project Structure
+## cache key algorithm
 
 ```
-├── main.py                 # Entry point (thin wrapper)
-├── app/
-│   ├── __init__.py        # Package metadata
-│   ├── main.py            # FastAPI app factory + lifespan
-│   ├── config.py          # Pydantic settings from env
-│   ├── models.py          # Request/response schemas
-│   ├── dependencies.py    # Service injection
-│   ├── services/
-│   │   ├── cache.py       # Redis + MD5 hashing logic
-│   │   └── proxy.py       # HTTP forwarding logic
-│   └── routes/
-│       ├── proxy.py       # /proxy endpoint
-│       └── health.py      # /health, /cache/stats
-├── requirements.txt       # Pinned dependencies
-├── Dockerfile            # Multi-stage production build
-├── .env.example          # Configuration template
-└── README.md
+signature = {
+  "method":   "POST",
+  "url":      "https://...",
+  "headers":  { sorted, volatile headers stripped },
+  "body_md5": MD5(raw_body)
+}
+
+cache_key = CACHE_PREFIX + MD5(JSON(signature))
 ```
 
----
+volatile headers excluded from hash: `x-request-id`, `x-correlation-id`, `date`, `authorization`, `x-forwarded-for`, `x-real-ip`, `cf-ray`, `cf-connecting-ip`. this means different auth tokens hitting the same endpoint share a cache entry — by design, for internal/trusted use.
 
-## 🐳 Deployment
+## project structure
 
-### Docker (Recommended)
-
-```bash
-# Build
-docker build -t fastapi-proxy .
-
-# Run (without Redis - degraded mode)
-docker run -p 8000:8000 fastapi-proxy
-
-# Run with Redis
-docker run -p 8000:8000 -e REDIS_URL=redis://host:6379 fastapi-proxy
+```
+app/
+  __init__.py         — package metadata (v2.0.0)
+  main.py             — FastAPI app factory, lifespan, CORS, exception handler
+  config.py           — pydantic settings, all env var definitions
+  models.py           — request/response models
+  dependencies.py     — service lifecycle, FastAPI DI providers
+  routes/
+    proxy.py          — /proxy endpoint + legacy /webhook-test
+    health.py         — /health, /cache/stats, DELETE /cache
+  services/
+    cache.py          — Redis async client, MD5 key generation, get/set/clear
+    proxy.py          — httpx async client, request forwarding, response parsing
+main.py               — top-level entry point
+Dockerfile            — multi-stage build (builder + production)
 ```
 
-### Docker Compose (with Redis)
+## error codes
 
-```yaml
-version: '3.8'
-services:
-  proxy:
-    build: .
-    ports:
-      - "8000:8000"
-    environment:
-      - REDIS_URL=redis://redis:6379/0
-    depends_on:
-      - redis
-  redis:
-    image: redis:alpine
-    volumes:
-      - redis_data:/data
-volumes:
-  redis_data:
-```
+| code | meaning |
+|:---|:---|
+| `200` | success (cached or fresh) |
+| `400` | missing `url` parameter |
+| `502` | upstream connection failed |
+| `504` | upstream request timed out |
 
-### Systemd (Linux Server)
+## license
 
-```ini
-[Unit]
-Description=FastAPI Transparent Proxy
-After=network.target
-
-[Service]
-User=www-data
-WorkingDirectory=/opt/fastapi-proxy
-Environment="PATH=/opt/fastapi-proxy/venv/bin"
-ExecStart=/opt/fastapi-proxy/venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000
-Restart=always
-
-[Install]
-WantedBy=multi-user.target
-```
-
----
-
-## 🔥 Common Issues & Quick Fixes
-
-<details>
-<summary><b>Expand for troubleshooting tips</b></summary>
-
-| Problem | Solution |
-| :--- | :--- |
-| **"Redis unavailable" warning** | Expected without Redis. The proxy still works, just without caching. Add `REDIS_URL` when ready. |
-| **Cache not working** | Check `redis_connected: true` in `/health`. Verify your `REDIS_URL` is correct. |
-| **Timeout errors** | Increase `PROXY_TIMEOUT_SECONDS`. Some APIs are slow. |
-| **Cache key collisions** | Shouldn't happen—MD5 is deterministic. If you're seeing wrong cached responses, check if you're modifying headers unintentionally. |
-| **High memory usage** | Set `CACHE_TTL_SECONDS` lower, or use `/cache` DELETE endpoint to clear. |
-
-</details>
-
----
-
-## 🛠️ Development
-
-```bash
-# Clone
-git clone https://github.com/yigitkonur/fastapi-http-proxy-with-caching.git
-cd fastapi-http-proxy-with-caching
-
-# Setup
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-
-# Run with hot reload
-uvicorn main:app --reload
-
-# Run tests (coming soon)
-pytest
-```
-
----
-
-<div align="center">
-
-**Built with 🔥 because paying for duplicate API calls is a soul-crushing waste of money.**
-
-MIT © [Yiğit Konur](https://github.com/yigitkonur)
-
-</div>
+MIT
