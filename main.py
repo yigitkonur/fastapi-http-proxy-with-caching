@@ -1,5 +1,5 @@
 """
-FastAPI Transparent HTTP Proxy with MD5-based Caching
+proxy-http-cache
 
 Root entry point - imports the application from the app package.
 Run with: uvicorn main:app --reload

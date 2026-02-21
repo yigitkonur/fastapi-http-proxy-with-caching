@@ -1,7 +1,7 @@
 """
-FastAPI Transparent HTTP Proxy with Caching
+proxy-http-cache
 
-A no-code friendly transparent HTTP proxy that caches responses based on
+A no-code friendly HTTP caching proxy that caches responses based on
 MD5 hash of request signatures. Ideal for:
 - No-code/low-code platforms (n8n, Make, Zapier) that need response caching
 - Reducing duplicate API calls to expensive third-party services

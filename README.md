@@ -1,4 +1,4 @@
-transparent HTTP forward proxy with Redis-backed response deduplication. point any HTTP client at it — n8n, Make, Zapier, curl, whatever — and identical upstream requests get served from cache. Redis is optional; without it, the proxy degrades to pass-through.
+HTTP caching proxy with Redis-backed response deduplication. point any HTTP client at it — n8n, Make, Zapier, curl, whatever — and identical upstream requests get served from cache. Redis is optional; without it, the proxy degrades to pass-through.
 
 ```bash
 pip install -r requirements.txt

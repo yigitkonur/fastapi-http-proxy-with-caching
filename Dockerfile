@@ -1,4 +1,4 @@
-# FastAPI Transparent HTTP Proxy with MD5 Caching
+# proxy-http-cache — FastAPI HTTP Proxy with MD5 Caching
 # Multi-stage build for minimal production image
 
 # Build stage

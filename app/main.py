@@ -1,7 +1,7 @@
 """
-FastAPI Transparent HTTP Proxy with MD5-based Caching
+proxy-http-cache
 
-A production-ready transparent proxy service designed for no-code platforms
+A production-ready HTTP caching proxy designed for no-code platforms
 and automation workflows. Caches responses based on MD5 hash of request
 signatures to reduce duplicate API calls.
 
@@ -70,9 +70,9 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title=settings.app_name,
         description="""
-## Transparent HTTP Proxy with MD5-based Caching
+## proxy-http-cache: HTTP Proxy with MD5-based Caching
 
-A high-performance proxy service that caches HTTP responses based on 
+A high-performance proxy service that caches HTTP responses based on
 MD5 hashes of request signatures. Perfect for:
 
 - **No-code platforms** (n8n, Make, Zapier) that need response caching

@@ -24,7 +24,7 @@ class Settings(BaseSettings):
     
     # Application
     app_name: str = Field(
-        default="FastAPI Transparent Proxy",
+        default="proxy-http-cache",
         description="Application name for documentation"
     )
     app_version: str = Field(

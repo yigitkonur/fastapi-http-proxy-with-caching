@@ -1,7 +1,7 @@
 """
 Proxy endpoint routes.
 
-Main transparent proxy functionality for forwarding HTTP requests
+Main proxy-http-cache functionality for forwarding HTTP requests
 with MD5-based caching.
 """
 
@@ -31,7 +31,7 @@ router = APIRouter(tags=["Proxy"])
         502: {"model": ErrorResponse, "description": "Bad Gateway - Target unreachable"},
         504: {"model": ErrorResponse, "description": "Gateway Timeout"},
     },
-    summary="Transparent HTTP Proxy",
+    summary="HTTP Caching Proxy",
     description="""
 Forward HTTP requests to any URL with automatic MD5-based caching.
 
@@ -58,7 +58,7 @@ async def proxy_request(
     cache_ttl: Annotated[Optional[int], Query(description="Custom cache TTL in seconds")] = None,
 ) -> ProxyResponse:
     """
-    Transparent proxy endpoint with MD5-based caching.
+    HTTP caching proxy endpoint with MD5-based caching.
     
     The cache key is an MD5 hash of:
     - HTTP method
