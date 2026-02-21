@@ -35,8 +35,8 @@ only responses with `status_code < 400` get cached. errors always pass through.
 ### local
 
 ```bash
-git clone https://github.com/yigitkonur/transparent-cache-proxy.git
-cd transparent-cache-proxy
+git clone https://github.com/yigitkonur/proxy-http-cache.git
+cd proxy-http-cache
 
 pip install -r requirements.txt
 cp .env.example .env
@@ -48,10 +48,10 @@ uvicorn main:app --host 0.0.0.0 --port 8000
 ### Docker
 
 ```bash
-docker build -t transparent-cache-proxy .
+docker build -t proxy-http-cache .
 docker run -p 8000:8000 \
   -e REDIS_URL=redis://your-redis:6379/0 \
-  transparent-cache-proxy
+  proxy-http-cache
 ```
 
 multi-stage build, runs as non-root `appuser`, built-in healthcheck.
